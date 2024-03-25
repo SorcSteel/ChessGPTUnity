@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "ChessGPT.sln"
+    "dotnet.defaultSolution": "ChessGPT-Unity.sln"
 }
