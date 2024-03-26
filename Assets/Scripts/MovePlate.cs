@@ -25,17 +25,22 @@ public class MovePlate : MonoBehaviour
         {
             GameObject piece = controller.GetComponent<Game>().getPosition(matrixX, matrixY);
 
-            Destroy(piece);
+            if(piece.name == "whiteKing") controller.GetComponent<Game>().Winner('B');
+            if(piece.name == "blackKing") controller.GetComponent<Game>().Winner('W');
 
-            controller.GetComponent<Game>().setPositionEmpty(reference.GetComponent<BasePiece>().GetXboard(), reference.GetComponent<BasePiece>().GetYBoard());
-            reference.GetComponent<BasePiece>().SetXBoard(matrixX);
-            reference.GetComponent<BasePiece>().SetYBoard(matrixY);
-            reference.GetComponent<BasePiece>().SetCoords();
-
-            controller.GetComponent<Game>().setPosition(reference);
-
-            reference.GetComponent<BasePiece>().DestroyMovePlates(); 
+            Destroy(piece); 
         }
+        
+        controller.GetComponent<Game>().setPositionEmpty(reference.GetComponent<BasePiece>().GetXboard(), reference.GetComponent<BasePiece>().GetYBoard());
+        reference.GetComponent<BasePiece>().SetXBoard(matrixX);
+        reference.GetComponent<BasePiece>().SetYBoard(matrixY);
+        reference.GetComponent<BasePiece>().SetCoords();
+
+        controller.GetComponent<Game>().setPosition(reference);
+
+        controller.GetComponent<Game>().NextTurn();
+
+        reference.GetComponent<BasePiece>().DestroyMovePlates();
     }
 
     public void SetCoords(int x, int y)

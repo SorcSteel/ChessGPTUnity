@@ -23,19 +23,19 @@ public class BasePiece : MonoBehaviour
 
         switch (this.name)
         {
-            case "blackPawn": this.GetComponent<SpriteRenderer>().sprite = BlackPawn; break;
-            case "blackKnight": this.GetComponent<SpriteRenderer>().sprite = BlackKnight; break;
-            case "blackBishop": this.GetComponent<SpriteRenderer>().sprite = BlackBishop; break;
-            case "blackRook": this.GetComponent<SpriteRenderer>().sprite = BlackRook; break;
-            case "blackQueen": this.GetComponent<SpriteRenderer>().sprite = BlackQueen; break;
-            case "blackKing": this.GetComponent<SpriteRenderer>().sprite = BlackKing; break;
+            case "blackPawn": this.GetComponent<SpriteRenderer>().sprite = BlackPawn; player = 'B'; break;
+            case "blackKnight": this.GetComponent<SpriteRenderer>().sprite = BlackKnight; player = 'B'; break;
+            case "blackBishop": this.GetComponent<SpriteRenderer>().sprite = BlackBishop; player = 'B'; break;
+            case "blackRook": this.GetComponent<SpriteRenderer>().sprite = BlackRook; player = 'B'; break;
+            case "blackQueen": this.GetComponent<SpriteRenderer>().sprite = BlackQueen; player = 'B'; break;
+            case "blackKing": this.GetComponent<SpriteRenderer>().sprite = BlackKing; player = 'B'; break;
 
-            case "whitePawn": this.GetComponent<SpriteRenderer>().sprite = WhitePawn; break;
-            case "whiteKnight": this.GetComponent<SpriteRenderer>().sprite = WhiteKnight; break;
-            case "whiteBishop": this.GetComponent<SpriteRenderer>().sprite = WhiteBishop; break;
-            case "whiteRook": this.GetComponent<SpriteRenderer>().sprite = WhiteRook; break;
-            case "whiteQueen": this.GetComponent<SpriteRenderer>().sprite = WhiteQueen; break;
-            case "whiteKing": this.GetComponent<SpriteRenderer>().sprite = WhiteKing; break;
+            case "whitePawn": this.GetComponent<SpriteRenderer>().sprite = WhitePawn; player = 'W'; break;
+            case "whiteKnight": this.GetComponent<SpriteRenderer>().sprite = WhiteKnight; player = 'W'; break;
+            case "whiteBishop": this.GetComponent<SpriteRenderer>().sprite = WhiteBishop; player = 'W'; break;
+            case "whiteRook": this.GetComponent<SpriteRenderer>().sprite = WhiteRook; player = 'W'; break;
+            case "whiteQueen": this.GetComponent<SpriteRenderer>().sprite = WhiteQueen; player = 'W'; break;
+            case "whiteKing": this.GetComponent<SpriteRenderer>().sprite = WhiteKing; player = 'W'; break;
         }
     }
 
@@ -44,7 +44,6 @@ public class BasePiece : MonoBehaviour
         float x = xBoard;
         float y = yBoard;
 
-        // will probably need to change these values
         x *= 0.97f; 
         y *= 0.97f; 
 
@@ -61,9 +60,12 @@ public class BasePiece : MonoBehaviour
 
     public void OnMouseUp()
     {
-        DestroyMovePlates();
+        if(!controller.GetComponent<Game>().IsGameOver() && controller.GetComponent<Game>().GetCurrentPlayer() == player)
+        {
+            DestroyMovePlates();
 
-        InitiateMovePlates();
+            InitiateMovePlates();
+        }
     }
 
     public void DestroyMovePlates()
@@ -118,12 +120,137 @@ public class BasePiece : MonoBehaviour
                 break;
 
             case "blackPawn":
-                PawnMovePlate(xBoard, yBoard, -1);
+                PawnMovePlate(xBoard, yBoard -1);
                 break;
 
              case "whitePawn":
-                PawnMovePlate(xBoard, yBoard, -1);
+                PawnMovePlate(xBoard, yBoard + 1);
                 break;
         }
+    }
+
+    public void LineMovePlate(int xIncrement, int yIncrement)
+    {
+        Game sc = controller.GetComponent<Game>();
+
+        int x = xBoard + xIncrement;
+        int y = yBoard + yIncrement;
+
+        while (sc.positionOnBoard(x, y) && sc.getPosition(x, y) == null)
+        {
+            MovePlateSpawn(x, y);
+            x += xIncrement;
+            y += yIncrement;
+        }
+
+        if (sc.positionOnBoard(x, y) && sc.getPosition(x, y).GetComponent<BasePiece>().player != player)
+        {
+            MovePlateAttackSpawn(x, y);
+        }
+    }
+
+    public void LMovePlate()
+    {
+        PointMovePlate(xBoard + 1, yBoard + 2);
+        PointMovePlate(xBoard - 1, yBoard + 2);
+        PointMovePlate(xBoard + 2, yBoard + 1);
+        PointMovePlate(xBoard + 2, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard - 2);
+        PointMovePlate(xBoard - 1, yBoard - 2);
+        PointMovePlate(xBoard - 2, yBoard + 1);
+        PointMovePlate(xBoard - 2, yBoard - 1);
+    }
+
+    public void SurroundMovePlate()
+    {
+        PointMovePlate(xBoard, yBoard + 1);
+        PointMovePlate(xBoard, yBoard - 1);
+        PointMovePlate(xBoard - 1, yBoard + 0);
+        PointMovePlate(xBoard - 1, yBoard - 1);
+        PointMovePlate(xBoard - 1, yBoard + 1);
+        PointMovePlate(xBoard + 1, yBoard + 0);
+        PointMovePlate(xBoard + 1, yBoard - 1);
+        PointMovePlate(xBoard + 1, yBoard + 1);
+    }
+
+    public void PointMovePlate(int x, int y)
+    {
+        Game sc = controller.GetComponent<Game>();
+        if (sc.positionOnBoard(x, y))
+        {
+            GameObject cp = sc.getPosition(x, y);
+
+            if (cp == null)
+            {
+                MovePlateSpawn(x, y);
+            }
+            else if (cp.GetComponent<BasePiece>().player != player)
+            {
+                MovePlateAttackSpawn(x, y);
+            }
+        }
+    }
+
+    public void PawnMovePlate(int x, int y)
+    {
+        Game sc = controller.GetComponent<Game>();
+        if (sc.positionOnBoard(x, y))
+        {
+            if (sc.getPosition(x, y) == null)
+            {
+                MovePlateSpawn(x, y);
+            }
+
+            if (sc.getPosition(x + 1, y) && sc.getPosition(x + 1, y) != null && sc.getPosition(x + 1, y).GetComponent<BasePiece>().player != player)
+            {
+                MovePlateAttackSpawn(x + 1, y);
+            }
+
+            if (sc.getPosition(x - 1, y) && sc.getPosition(x - 1, y) != null && sc.getPosition(x - 1, y).GetComponent<BasePiece>().player != player)
+            {
+                MovePlateAttackSpawn(x - 1, y);
+            }
+        }
+    }
+
+     public void MovePlateSpawn(int matrixX, int matrixY)
+    {
+        
+        float x = matrixX;
+        float y = matrixY;
+
+        x *= 0.97f; 
+        y *= 0.97f; 
+
+        x += -3.45f;
+        y += -3.6f;
+
+        //Set actual unity values
+        GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
+
+        MovePlate mpScript = mp.GetComponent<MovePlate>();
+        mpScript.SetReference(gameObject);
+        mpScript.SetCoords(matrixX, matrixY);
+    }
+
+ public void MovePlateAttackSpawn(int matrixX, int matrixY)
+    {
+        
+        float x = matrixX;
+        float y = matrixY;
+
+        x *= 0.97f; 
+        y *= 0.97f; 
+
+        x += -3.45f;
+        y += -3.6f;
+
+        //Set actual unity values
+        GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
+
+        MovePlate mpScript = mp.GetComponent<MovePlate>();
+        mpScript.attack = true;
+        mpScript.SetReference(gameObject);
+        mpScript.SetCoords(matrixX, matrixY);
     }
 }

@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
@@ -9,7 +12,7 @@ public class Game : MonoBehaviour
     private GameObject[,] positions = new GameObject[8, 8];
     private GameObject[] playerBlack = new GameObject[16];
     private GameObject[] playerWhite = new GameObject[16];
-    private char currentPlayer = 'w';
+    private char currentPlayer = 'W';
     private bool gameOver = false;
 
     // Start is called before the first frame update
@@ -97,5 +100,52 @@ public class Game : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    public char GetCurrentPlayer()
+    {
+        return currentPlayer;
+    }
+
+    public bool IsGameOver()
+    {
+        return gameOver;
+    }
+
+    public void NextTurn()
+    {
+        if(currentPlayer == 'W')
+        {
+            currentPlayer = 'B';
+        }
+        else
+        {
+            currentPlayer = 'W';
+        }
+    }
+
+    public void Update()
+    {
+        if(gameOver && Input.GetMouseButtonDown(0))
+        {
+            gameOver = false;
+
+            SceneManager.LoadScene("Game");
+        }
+    }
+
+    public void Winner(char playerWinner)
+    {
+        string winner = "";
+        if(playerWinner == 'W') winner = "White";
+        if(playerWinner == 'B') winner = "Black";
+
+        gameOver = true;
+
+        GameObject.FindGameObjectWithTag("WinnerText").GetComponent<Text>().enabled = true;
+        GameObject.FindGameObjectWithTag("WinnerText").GetComponent<Text>().text = winner + " is the winner";
+
+        GameObject.FindGameObjectWithTag("RestartText").GetComponent<Text>().enabled = true;
+
     }
 }
