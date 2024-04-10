@@ -21,15 +21,24 @@ public class Login : MonoBehaviour
       string username = GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text;
       string password = GameObject.FindGameObjectWithTag("txtPassword").GetComponent<TMP_InputField>().text;
 
-      User user = APIHelper.GetUser(username, password);
+      User user = APIHelper.Login(username, password);
 
-      GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = user.firstName;
-      GameObject.FindGameObjectWithTag("txtPassword").GetComponent<TMP_InputField>().text = user.lastName;
+      if (user.FirstName == string.Empty)
+      {
+         //invalid user
+         GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = "Invalid";
+      }
+      else
+      {
+         GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = user.FirstName;
+         GameObject.FindGameObjectWithTag("txtPassword").GetComponent<TMP_InputField>().text = user.LastName;
+      }
+
       //SceneManager.LoadScene(1);
    }
 
    public void btnRegisterClicked()
    {
-      
+      SceneManager.LoadScene("CreateAccountPage");
    }
 }

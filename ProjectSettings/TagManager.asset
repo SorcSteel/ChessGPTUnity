@@ -9,6 +9,9 @@ TagManager:
   - RestartText
   - txtUsername
   - txtPassword
+  - txtFirstName
+  - txtLastName
+  - txtResult
   layers:
   - Default
   - TransparentFX

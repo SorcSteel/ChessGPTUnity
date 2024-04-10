@@ -4,10 +4,10 @@ using System;
 
 public class User{
     public Guid Id;
-    public string Username;
+    public string UserName;
     public string Password;
-    public string firstName;
-    public string lastName;
-    public bool isComputer;
+    public string FirstName;
+    public string LastName;
+    public bool IsComputer;
 
 }
