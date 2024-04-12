@@ -27,12 +27,12 @@ public class CreateAccount : MonoBehaviour
 
         User user = new User
         {
-         Id = Guid.Empty,
-         UserName = username,
-         Password = password,
-         FirstName = firstName,
-         LastName = lastName,
-         IsComputer = false
+         id = Guid.Empty,
+         userName = username,
+         password = password,
+         firstName = firstName,
+         lastName = lastName,
+         isComputer = false
         };
 
          int result = APIHelper.CreateAccount(user);

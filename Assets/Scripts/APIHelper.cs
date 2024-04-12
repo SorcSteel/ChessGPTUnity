@@ -2,6 +2,7 @@ using System.Net;
 using  System.IO;
 using UnityEngine;
 using System;
+using TMPro;
 
 public static class APIHelper
 {
@@ -12,6 +13,7 @@ public static class APIHelper
         HttpWebResponse response = (HttpWebResponse)request.GetResponse();
         StreamReader reader = new StreamReader(response.GetResponseStream());
         string json = reader.ReadToEnd();
+        //GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = json;
         return JsonUtility.FromJson<User>(json);
     }
 

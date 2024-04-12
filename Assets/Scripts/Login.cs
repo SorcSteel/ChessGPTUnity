@@ -23,18 +23,16 @@ public class Login : MonoBehaviour
 
       User user = APIHelper.Login(username, password);
 
-      if (user.FirstName == string.Empty)
+
+      if (user.firstName == "")
       {
          //invalid user
          GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = "Invalid";
       }
       else
-      {
-         GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = user.FirstName;
-         GameObject.FindGameObjectWithTag("txtPassword").GetComponent<TMP_InputField>().text = user.LastName;
+     {
+         SceneManager.LoadScene("MainMenu");
       }
-
-      //SceneManager.LoadScene(1);
    }
 
    public void btnRegisterClicked()
