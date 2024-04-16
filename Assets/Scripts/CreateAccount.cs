@@ -1,14 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Networking;
-using System.Text;
-using System.Linq;
-using SimpleJSON;
 
 public class CreateAccount : MonoBehaviour
 {

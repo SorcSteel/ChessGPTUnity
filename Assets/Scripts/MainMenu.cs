@@ -7,12 +7,12 @@ public class MainMenu : MonoBehaviour
 {
    public void PlayOnline()
    {
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene("Game");
    }
 
    public void PlayVsAi()
    {
-      SceneManager.LoadScene(3);
+
    }
 
    public void QuitButton()

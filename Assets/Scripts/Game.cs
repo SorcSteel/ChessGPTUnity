@@ -15,8 +15,18 @@ public class Game : MonoBehaviour
     private char currentPlayer = 'W';
     private bool gameOver = false;
 
+    private SignalRConnection signalRConnection;
+
     // Start is called before the first frame update
     void Start()
+    {
+        signalRConnection = new SignalRConnection();
+        signalRConnection.OnMessageReceived += HandleOpponentMove;
+
+        SetupChessboard();
+    }
+
+    public void SetupChessboard()
     {
         playerWhite = new GameObject[]
         {
@@ -63,6 +73,7 @@ public class Game : MonoBehaviour
             setPosition(playerBlack[i]);
             setPosition(playerWhite[i]);
         }
+        signalRConnection.Initialize();
     }
 
     public GameObject Create(string name, int x, int y)
@@ -112,8 +123,16 @@ public class Game : MonoBehaviour
         return gameOver;
     }
 
-    public void NextTurn()
+    public async void NextTurn()
     {
+            // Create an instance of SignalRConnection
+            SignalRConnection signalRConnection = new SignalRConnection();
+
+            // Call Initialize to set up the connection (assuming this needs to be done before sending a message)
+            signalRConnection.Initialize();
+
+            // Await the SendMessage call
+            await signalRConnection.SendMessage(GetFEN());
         if(currentPlayer == 'W')
         {
             currentPlayer = 'B';
@@ -123,6 +142,166 @@ public class Game : MonoBehaviour
             currentPlayer = 'W';
         }
     }
+
+    void HandleOpponentMove(string fen)
+{
+    // Parse the FEN string to update the game state
+    ParseFEN(fen);
+
+    // Switch player turn after handling the opponent's move
+}
+
+void ParseFEN(string fen)
+{
+    // Split the FEN string to extract the board configuration and current player
+    string[] parts = fen.Split(' ');
+    string boardConfig = parts[0];
+    char player = parts[1][0];
+
+    // Reset the board positions
+    for (int xIterator = 0; xIterator < 8; xIterator++)
+    {
+        for (int yIterator = 0; yIterator < 8; yIterator++)
+        {
+            positions[xIterator, yIterator] = null;
+        }
+    }
+
+    // Parse the board configuration to set the positions of the chess pieces
+    int x = 0, y = 7; // Start at the bottom-left corner of the board
+    foreach (char c in boardConfig)
+    {
+        if (char.IsDigit(c))
+        {
+            // Empty squares
+            int emptyCount = int.Parse(c.ToString());
+            x += emptyCount;
+        }
+        else if (c == '/')
+        {
+            // Move to the next row
+            x = 0;
+            y--;
+        }
+        else
+        {
+            // Chess piece
+            GameObject piece = CreatePieceFromFEN(c, x, y);
+            setPosition(piece);
+            x++;
+        }
+    }
+}
+
+GameObject CreatePieceFromFEN(char fenChar, int x, int y)
+{
+    // Determine the piece color based on the case of the FEN character
+    bool isWhite = char.IsUpper(fenChar);
+
+    // Convert the FEN character to the piece name
+    string pieceName = "";
+    switch (char.ToLower(fenChar))
+    {
+        case 'p':
+            pieceName = isWhite ? "whitePawn" : "blackPawn";
+            break;
+        case 'r':
+            pieceName = isWhite ? "whiteRook" : "blackRook";
+            break;
+        case 'n':
+            pieceName = isWhite ? "whiteKnight" : "blackKnight";
+            break;
+        case 'b':
+            pieceName = isWhite ? "whiteBishop" : "blackBishop";
+            break;
+        case 'q':
+            pieceName = isWhite ? "whiteQueen" : "blackQueen";
+            break;
+        case 'k':
+            pieceName = isWhite ? "whiteKing" : "blackKing";
+            break;
+    }
+
+    // Create and return the corresponding GameObject
+    return Create(pieceName, x, y);
+}
+
+    public string GetFEN()
+{
+    string fen = "";
+    int emptySquareCount = 0;
+
+    for (int y = 7; y >= 0; y--)
+    {
+        for (int x = 0; x < 8; x++)
+        {
+            GameObject piece = getPosition(x, y);
+            if (piece != null)
+            {
+                char pieceFEN = GetFENRepresentation(piece.GetComponent<BasePiece>().name);
+                if (emptySquareCount > 0)
+                {
+                    fen += emptySquareCount.ToString();
+                    emptySquareCount = 0;
+                }
+                fen += pieceFEN;
+            }
+            else
+            {
+                emptySquareCount++;
+            }
+        }
+
+        if (emptySquareCount > 0)
+        {
+            fen += emptySquareCount.ToString();
+            emptySquareCount = 0;
+        }
+
+        if (y > 0)
+        {
+            fen += "/";
+        }
+    }
+
+    fen += " ";
+    fen += currentPlayer == 'W' ? "w" : "b";
+
+    return fen;
+}
+
+private char GetFENRepresentation(string pieceName)
+{
+    switch (pieceName)
+    {
+        case "whitePawn":
+            return 'P';
+        case "whiteRook":
+            return 'R';
+        case "whiteKnight":
+            return 'N';
+        case "whiteBishop":
+            return 'B';
+        case "whiteQueen":
+            return 'Q';
+        case "whiteKing":
+            return 'K';
+        case "blackPawn":
+            return 'p';
+        case "blackRook":
+            return 'r';
+        case "blackKnight":
+            return 'n';
+        case "blackBishop":
+            return 'b';
+        case "blackQueen":
+            return 'q';
+        case "blackKing":
+            return 'k';
+        default:
+            return ' ';
+    }
+}
 
     public void Update()
     {
