@@ -2,19 +2,34 @@ using System.Net;
 using  System.IO;
 using UnityEngine;
 using System;
-using TMPro;
+using System.Collections;
+using UnityEngine.Networking;
 
 public static class APIHelper
 {
-    public static string baseUrl = "https://localhost:7230/api/";
-    public static User Login(string username, string password)
+    public static string baseUrl = "https://bigprojectapi-500201348.azurewebsites.net/api/";
+    public static IEnumerator Login(string username, string password, Action<User> onSuccess, Action<string> onError)
     {
-        HttpWebRequest request =(HttpWebRequest)WebRequest.Create(baseUrl + "User/" + username + "/" + password);
-        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-        StreamReader reader = new StreamReader(response.GetResponseStream());
-        string json = reader.ReadToEnd();
-        //GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = json;
-        return JsonUtility.FromJson<User>(json);
+        string url = baseUrl + "User/" + UnityWebRequest.EscapeURL(username) + "/" + UnityWebRequest.EscapeURL(password);
+
+        // Send the request
+        using (UnityWebRequest www = UnityWebRequest.Get(url))
+        {
+            yield return www.SendWebRequest();
+
+            // Check for errors
+            if (www.isNetworkError || www.isHttpError)
+            {
+                onError?.Invoke("Failed to login. Error: " + www.error);
+            }
+            else
+            {
+                // Parse response
+                string json = www.downloadHandler.text;
+                User user = JsonUtility.FromJson<User>(json);
+                onSuccess?.Invoke(user);
+            }
+        }
     }
 
 public static int CreateAccount(User user)
@@ -25,7 +40,7 @@ public static int CreateAccount(User user)
      string jsonPayload = JsonUtility.ToJson(user);
  
      // Create HttpWebRequest
-     HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://localhost:7230/api/User/false");
+     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(baseUrl + "User/false");
      request.Method = "POST";
      request.ContentType = "application/json";
  

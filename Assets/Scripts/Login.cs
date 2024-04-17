@@ -9,23 +9,32 @@ public class Login : MonoBehaviour
    }
 
    public void btnLoginClicked()
-   {
-      string username = GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text;
-      string password = GameObject.FindGameObjectWithTag("txtPassword").GetComponent<TMP_InputField>().text;
+{
+    string username = GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text;
+    string password = GameObject.FindGameObjectWithTag("txtPassword").GetComponent<TMP_InputField>().text;
 
-      User user = APIHelper.Login(username, password);
+    StartCoroutine(APIHelper.Login(username, password, OnLoginSuccess, OnLoginError));
+}
 
+private void OnLoginSuccess(User user)
+{
+    if (user.firstName == "")
+    {
+        // Invalid user
+        GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = "Invalid";
+    }
+    else
+    {
+        // Valid user, proceed to main menu
+        SceneManager.LoadScene("MainMenu");
+    }
+}
 
-      if (user.firstName == "")
-      {
-         //invalid user
-         GameObject.FindGameObjectWithTag("txtUsername").GetComponent<TMP_InputField>().text = "Invalid";
-      }
-      else
-     {
-         SceneManager.LoadScene("MainMenu");
-      }
-   }
+private void OnLoginError(string errorMessage)
+{
+    // Handle login error
+    Debug.LogError("Login error: " + errorMessage);
+}
 
    public void btnRegisterClicked()
    {

@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class SignalRConnection
 {
-    private const string HubAddress = "https://localhost:7230/chessgpthub";
+    private const string HubAddress = "https://bigprojectapi-500201348.azurewebsites.net/chessgpthub";
 
     private HubConnection _connection;
 
@@ -19,7 +19,7 @@ public class SignalRConnection
             .WithUrl(HubAddress)
             .Build();
 
-        _connection.On("OnMessageReceived", (string message) => {
+        _connection.On("ReceiveMessage", (string message) => {
             OnMessageReceived?.Invoke(message);
         });
 

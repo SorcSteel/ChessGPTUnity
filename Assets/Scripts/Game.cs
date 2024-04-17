@@ -113,11 +113,6 @@ public class Game : MonoBehaviour
         return true;
     }
 
-    public char GetCurrentPlayer()
-    {
-        return currentPlayer;
-    }
-
     public bool IsGameOver()
     {
         return gameOver;
@@ -126,29 +121,20 @@ public class Game : MonoBehaviour
     public async void NextTurn()
     {
             // Create an instance of SignalRConnection
-            SignalRConnection signalRConnection = new SignalRConnection();
+            //SignalRConnection signalRConnection = new SignalRConnection();
 
             // Call Initialize to set up the connection (assuming this needs to be done before sending a message)
-            signalRConnection.Initialize();
+            //signalRConnection.Initialize();
+            //signalRConnection.OnMessageReceived += HandleOpponentMove;
 
             // Await the SendMessage call
             await signalRConnection.SendMessage(GetFEN());
-        if(currentPlayer == 'W')
-        {
-            currentPlayer = 'B';
-        }
-        else
-        {
-            currentPlayer = 'W';
-        }
     }
 
     void HandleOpponentMove(string fen)
 {
     // Parse the FEN string to update the game state
     ParseFEN(fen);
-
-    // Switch player turn after handling the opponent's move
 }
 
 void ParseFEN(string fen)
@@ -156,18 +142,24 @@ void ParseFEN(string fen)
     // Split the FEN string to extract the board configuration and current player
     string[] parts = fen.Split(' ');
     string boardConfig = parts[0];
-    char player = parts[1][0];
+    // Extract the current player from the FEN string
+    char lastPlayer = parts[1][0];
 
-    // Reset the board positions
+    // Delete all existing pieces
     for (int xIterator = 0; xIterator < 8; xIterator++)
     {
         for (int yIterator = 0; yIterator < 8; yIterator++)
         {
-            positions[xIterator, yIterator] = null;
+            GameObject existingPiece = positions[xIterator, yIterator];
+            if (existingPiece != null)
+            {
+                Destroy(existingPiece);
+                positions[xIterator, yIterator] = null;
+            }
         }
     }
 
-    // Parse the board configuration to set the positions of the chess pieces
+    // Parse the board configuration to create new pieces
     int x = 0, y = 7; // Start at the bottom-left corner of the board
     foreach (char c in boardConfig)
     {
@@ -191,6 +183,20 @@ void ParseFEN(string fen)
             x++;
         }
     }
+
+    // Update the current player
+    currentPlayer = char.ToUpper(lastPlayer); // Ensure lowercase for consistency
+
+    // Switch the current player for the next turn
+    if (currentPlayer == 'W')
+    {
+        this.currentPlayer = 'B';
+    }
+    else
+    {
+        this.currentPlayer = 'W';
+    }
+    
 }
 
 GameObject CreatePieceFromFEN(char fenChar, int x, int y)
@@ -265,7 +271,7 @@ GameObject CreatePieceFromFEN(char fenChar, int x, int y)
     }
 
     fen += " ";
-    fen += currentPlayer == 'W' ? "w" : "b";
+    fen += currentPlayer;
 
     return fen;
 }
@@ -302,6 +308,8 @@ private char GetFENRepresentation(string pieceName)
             return ' ';
     }
 }
+
+    public char GetCurrentPlayer(){return currentPlayer;}
 
     public void Update()
     {
