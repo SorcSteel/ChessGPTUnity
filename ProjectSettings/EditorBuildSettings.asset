@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CreateAccountPage.unity
     guid: 238f7bc5f0239bd4790bd94575af15df
+  - enabled: 1
+    path: Assets/Scenes/PlayAgaisntAI.unity
+    guid: 77c374b22652f364ca7bba6346c3b934
   m_configObjects: {}

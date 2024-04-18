@@ -3,7 +3,9 @@ using  System.IO;
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.Networking;
+using System.Threading.Tasks;
 
 public static class APIHelper
 {
@@ -55,4 +57,31 @@ public static int CreateAccount(User user)
     return 0;
    }
 }
+
+public static string GetAIMove(string board)
+    {
+        string url = baseUrl + "OpenAI/ComputerMove?board=" + UnityWebRequest.EscapeURL(board);
+
+        // Create the request
+        WebRequest request = WebRequest.Create(url);
+        request.Method = "POST";
+
+        try
+        {
+            // Get the response
+            WebResponse response = request.GetResponse();
+            System.IO.Stream stream = response.GetResponseStream();
+            System.IO.StreamReader reader = new System.IO.StreamReader(stream);
+            {
+                // Read the response and return it
+                string result = reader.ReadToEnd();
+                return result;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error calling API: " + e.Message);
+            return null;
+        }
+    }
 }

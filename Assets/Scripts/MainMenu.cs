@@ -12,7 +12,7 @@ public class MainMenu : MonoBehaviour
 
    public void PlayVsAi()
    {
-
+      SceneManager.LoadScene(4);
    }
 
    public void QuitButton()

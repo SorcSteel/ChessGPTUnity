@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BasePiece : MonoBehaviour
 {
@@ -60,11 +61,25 @@ public class BasePiece : MonoBehaviour
 
     public void OnMouseUp()
     {
-        if(!controller.GetComponent<Game>().IsGameOver() && controller.GetComponent<Game>().GetCurrentPlayer() == player)
+        Scene scene = SceneManager.GetActiveScene();
+        string sceneName = scene.name;
+        if(scene.name == "Game")
         {
-            DestroyMovePlates();
+            if(!controller.GetComponent<Game>().IsGameOver() && controller.GetComponent<Game>().GetCurrentPlayer() == player)
+            {
+                DestroyMovePlates();
 
-            InitiateMovePlates();
+                InitiateMovePlates();
+            }
+        }
+        else
+        {
+            if(!controller.GetComponent<PlayAgainstAI>().IsGameOver() && controller.GetComponent<PlayAgainstAI>().GetCurrentPlayer() == player)
+            {
+                DestroyMovePlates();
+
+                InitiateMovePlates();
+            }
         }
     }
 
@@ -131,22 +146,46 @@ public class BasePiece : MonoBehaviour
 
     public void LineMovePlate(int xIncrement, int yIncrement)
     {
-        Game sc = controller.GetComponent<Game>();
-
-        int x = xBoard + xIncrement;
-        int y = yBoard + yIncrement;
-
-        while (sc.positionOnBoard(x, y) && sc.getPosition(x, y) == null)
+        Scene scene = SceneManager.GetActiveScene();
+        string sceneName = scene.name;
+        if (sceneName == "Game")
         {
-            MovePlateSpawn(x, y);
-            x += xIncrement;
-            y += yIncrement;
+            Game sc = controller.GetComponent<Game>();
+            int x = xBoard + xIncrement;
+            int y = yBoard + yIncrement;
+
+            while (sc.positionOnBoard(x, y) && sc.getPosition(x, y) == null)
+            {
+                MovePlateSpawn(x, y);
+                x += xIncrement;
+                y += yIncrement;
+            }
+
+            if (sc.positionOnBoard(x, y) && sc.getPosition(x, y).GetComponent<BasePiece>().player != player)
+            {
+                MovePlateAttackSpawn(x, y);
+            }
+        }
+        else
+        {
+            PlayAgainstAI sc = controller.GetComponent<PlayAgainstAI>();
+            int x = xBoard + xIncrement;
+            int y = yBoard + yIncrement;
+
+            while (sc.positionOnBoard(x, y) && sc.getPosition(x, y) == null)
+            {
+                MovePlateSpawn(x, y);
+                x += xIncrement;
+                y += yIncrement;
+            }
+
+            if (sc.positionOnBoard(x, y) && sc.getPosition(x, y).GetComponent<BasePiece>().player != player)
+            {
+                MovePlateAttackSpawn(x, y);
+            }
         }
 
-        if (sc.positionOnBoard(x, y) && sc.getPosition(x, y).GetComponent<BasePiece>().player != player)
-        {
-            MovePlateAttackSpawn(x, y);
-        }
+        
     }
 
     public void LMovePlate()
@@ -175,40 +214,89 @@ public class BasePiece : MonoBehaviour
 
     public void PointMovePlate(int x, int y)
     {
-        Game sc = controller.GetComponent<Game>();
-        if (sc.positionOnBoard(x, y))
+        Scene scene = SceneManager.GetActiveScene();
+        string sceneName = scene.name;
+        if (sceneName == "Game")
         {
-            GameObject cp = sc.getPosition(x, y);
+            Game sc = controller.GetComponent<Game>();
+            if (sc.positionOnBoard(x, y))
+            {
+                GameObject cp = sc.getPosition(x, y);
 
-            if (cp == null)
-            {
-                MovePlateSpawn(x, y);
-            }
-            else if (cp.GetComponent<BasePiece>().player != player)
-            {
-                MovePlateAttackSpawn(x, y);
+                if (cp == null)
+                {
+                    MovePlateSpawn(x, y);
+                }
+                else if (cp.GetComponent<BasePiece>().player != player)
+                {
+                    MovePlateAttackSpawn(x, y);
+                }
             }
         }
+        else
+        {
+            PlayAgainstAI sc = controller.GetComponent<PlayAgainstAI>();
+            if (sc.positionOnBoard(x, y))
+            {
+                GameObject cp = sc.getPosition(x, y);
+
+                if (cp == null)
+                {
+                    MovePlateSpawn(x, y);
+                }
+                else if (cp.GetComponent<BasePiece>().player != player)
+                {
+                    MovePlateAttackSpawn(x, y);
+                }
+            }
+        }
+
     }
 
     public void PawnMovePlate(int x, int y)
     {
-        Game sc = controller.GetComponent<Game>();
-        if (sc.positionOnBoard(x, y))
+        Scene scene = SceneManager.GetActiveScene();
+        string sceneName = scene.name;
+        if (sceneName == "Game")
         {
-            if (sc.getPosition(x, y) == null)
+            Game sc = controller.GetComponent<Game>();
+            if (sc.positionOnBoard(x, y))
             {
-                MovePlateSpawn(x, y);
-            }
+                if (sc.getPosition(x, y) == null)
+                {
+                    MovePlateSpawn(x, y);
+                }
 
-            if (sc.getPosition(x + 1, y) && sc.getPosition(x + 1, y) != null && sc.getPosition(x + 1, y).GetComponent<BasePiece>().player != player)
-            {
-                MovePlateAttackSpawn(x + 1, y);
-            }
+                if (sc.getPosition(x + 1, y) && sc.getPosition(x + 1, y) != null && sc.getPosition(x + 1, y).GetComponent<BasePiece>().player != player)
+                {
+                    MovePlateAttackSpawn(x + 1, y);
+                }
 
-            if (sc.getPosition(x - 1, y) && sc.getPosition(x - 1, y) != null && sc.getPosition(x - 1, y).GetComponent<BasePiece>().player != player)
+                if (sc.getPosition(x - 1, y) && sc.getPosition(x - 1, y) != null && sc.getPosition(x - 1, y).GetComponent<BasePiece>().player != player)
+                {
+                    MovePlateAttackSpawn(x - 1, y);
+                }
+            }
+        }
+        else
+        {
+            PlayAgainstAI sc = controller.GetComponent<PlayAgainstAI>();
+            if (sc.positionOnBoard(x, y))
             {
-                MovePlateAttackSpawn(x - 1, y);
+                if (sc.getPosition(x, y) == null)
+                {
+                    MovePlateSpawn(x, y);
+                }
+
+                if (sc.getPosition(x + 1, y) && sc.getPosition(x + 1, y) != null && sc.getPosition(x + 1, y).GetComponent<BasePiece>().player != player)
+                {
+                    MovePlateAttackSpawn(x + 1, y);
+                }
+
+                if (sc.getPosition(x - 1, y) && sc.getPosition(x - 1, y) != null && sc.getPosition(x - 1, y).GetComponent<BasePiece>().player != player)
+                {
+                    MovePlateAttackSpawn(x - 1, y);
+                }
             }
         }
     }

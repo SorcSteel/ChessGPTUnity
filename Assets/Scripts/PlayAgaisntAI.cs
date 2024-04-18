@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class Game : MonoBehaviour
+public class PlayAgainstAI : MonoBehaviour
 {
     public GameObject chesspiece;
     private GameObject[,] positions = new GameObject[8, 8];
@@ -15,14 +15,12 @@ public class Game : MonoBehaviour
     private char currentPlayer = 'W';
     private bool gameOver = false;
 
-    private SignalRConnection signalRConnection;
-
     void Start()
     {
-        signalRConnection = new SignalRConnection();
-        signalRConnection.OnMessageReceived += HandleOpponentMove;
-
         SetupChessboard();
+        string apiResponse = APIHelper.GetAIMove(GetFEN());
+        Debug.Log(apiResponse);
+        ParseFEN(apiResponse);
     }
 
     public void SetupChessboard()
@@ -72,7 +70,6 @@ public class Game : MonoBehaviour
             setPosition(playerBlack[i]);
             setPosition(playerWhite[i]);
         }
-        signalRConnection.Initialize();
     }
 
     public GameObject Create(string name, int x, int y)
@@ -119,13 +116,14 @@ public class Game : MonoBehaviour
 
     public async void NextTurn()
     {
-            await signalRConnection.SendMessage(GetFEN());
+        if(currentPlayer == 'B')
+        {
+            currentPlayer = 'W';
+        }
+        string apiResponse = APIHelper.GetAIMove(GetFEN());
+        Debug.Log(apiResponse);
+        ParseFEN(apiResponse);
     }
-
-    void HandleOpponentMove(string fen)
-{
-    ParseFEN(fen);
-}
 
 void ParseFEN(string fen)
 {
@@ -133,6 +131,7 @@ void ParseFEN(string fen)
     string boardConfig = parts[0];
     // Set the current player based on the FEN string
     char lastPlayer = parts[1][0];
+    currentPlayer = char.ToUpper(lastPlayer);
 
     // Delete all existing pieces
     for (int xIterator = 0; xIterator < 8; xIterator++)
@@ -170,20 +169,6 @@ void ParseFEN(string fen)
             x++;
         }
     }
-
-    // Update the current player
-    currentPlayer = char.ToUpper(lastPlayer);
-
-    // Switch the current player for the next turn
-    if (currentPlayer == 'W')
-    {
-        this.currentPlayer = 'B';
-    }
-    else
-    {
-        this.currentPlayer = 'W';
-    }
-    
 }
 
 GameObject CreatePieceFromFEN(char fenChar, int x, int y)
