@@ -17,7 +17,6 @@ public class Game : MonoBehaviour
 
     private SignalRConnection signalRConnection;
 
-    // Start is called before the first frame update
     void Start()
     {
         signalRConnection = new SignalRConnection();
@@ -120,29 +119,19 @@ public class Game : MonoBehaviour
 
     public async void NextTurn()
     {
-            // Create an instance of SignalRConnection
-            //SignalRConnection signalRConnection = new SignalRConnection();
-
-            // Call Initialize to set up the connection (assuming this needs to be done before sending a message)
-            //signalRConnection.Initialize();
-            //signalRConnection.OnMessageReceived += HandleOpponentMove;
-
-            // Await the SendMessage call
             await signalRConnection.SendMessage(GetFEN());
     }
 
     void HandleOpponentMove(string fen)
 {
-    // Parse the FEN string to update the game state
     ParseFEN(fen);
 }
 
 void ParseFEN(string fen)
 {
-    // Split the FEN string to extract the board configuration and current player
     string[] parts = fen.Split(' ');
     string boardConfig = parts[0];
-    // Extract the current player from the FEN string
+    // Set the current player based on the FEN string
     char lastPlayer = parts[1][0];
 
     // Delete all existing pieces
@@ -159,8 +148,7 @@ void ParseFEN(string fen)
         }
     }
 
-    // Parse the board configuration to create new pieces
-    int x = 0, y = 7; // Start at the bottom-left corner of the board
+    int x = 0, y = 7;
     foreach (char c in boardConfig)
     {
         if (char.IsDigit(c))
@@ -177,7 +165,6 @@ void ParseFEN(string fen)
         }
         else
         {
-            // Chess piece
             GameObject piece = CreatePieceFromFEN(c, x, y);
             setPosition(piece);
             x++;
@@ -185,7 +172,7 @@ void ParseFEN(string fen)
     }
 
     // Update the current player
-    currentPlayer = char.ToUpper(lastPlayer); // Ensure lowercase for consistency
+    currentPlayer = char.ToUpper(lastPlayer);
 
     // Switch the current player for the next turn
     if (currentPlayer == 'W')
@@ -201,10 +188,8 @@ void ParseFEN(string fen)
 
 GameObject CreatePieceFromFEN(char fenChar, int x, int y)
 {
-    // Determine the piece color based on the case of the FEN character
     bool isWhite = char.IsUpper(fenChar);
 
-    // Convert the FEN character to the piece name
     string pieceName = "";
     switch (char.ToLower(fenChar))
     {
@@ -228,7 +213,6 @@ GameObject CreatePieceFromFEN(char fenChar, int x, int y)
             break;
     }
 
-    // Create and return the corresponding GameObject
     return Create(pieceName, x, y);
 }
 
