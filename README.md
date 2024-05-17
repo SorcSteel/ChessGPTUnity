@@ -1,5 +1,5 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+I had no part in creating the Unity side of this project. All of the Unity contribution would go to my partner.
 
 # Getting Started
 TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
